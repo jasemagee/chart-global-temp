@@ -1,0 +1,6 @@
+devid=jasemagee
+devtitle=Jase Magee Limited
+gameid=chart-global-temp
+gametitle=Chart Global Temp
+version=0.2
+icon=metadata/icon.png
