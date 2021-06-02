@@ -1,5 +1,5 @@
 class Chart
-    attr_accessor :grid, :inputs, :game, :outputs
+    attr_accessor :grid, :inputs, :state, :outputs
     
     # https://datahub.io/core/global-temp
     def tick
@@ -8,67 +8,67 @@ class Chart
     end
     
     def defaults
-        game.chart_grid.width = 1000
-        game.chart_grid.height = 620
-        game.chart_grid.x = grid.w_half - (game.chart_grid.width / 2)
-        game.chart_grid.y = 60
+        state.chart_grid.width = 1000
+        state.chart_grid.height = 620
+        state.chart_grid.x = grid.w_half - (state.chart_grid.width / 2)
+        state.chart_grid.y = 60
 
         defaults_data
-        game.dataset_used = game.dataset.select { |d| d[:Source] == 'GISTEMP' }.reverse
-        game.dataset_max_y = game.dataset_used.max_by { |d| d[:Mean] }[:Mean].to_f
-        game.dataset_min_y = game.dataset_used.min_by { |d| d[:Mean] }[:Mean].to_f
-        game.dataset_max_x = game.dataset_used.max_by { |d| d[:Year] }[:Year].to_f
-        game.dataset_min_x = game.dataset_used.min_by { |d| d[:Year] }[:Year].to_f
+        state.dataset_used = state.dataset.select { |d| d[:Source] == 'GISTEMP' }.reverse
+        state.dataset_max_y = state.dataset_used.max_by { |d| d[:Mean] }[:Mean].to_f
+        state.dataset_min_y = state.dataset_used.min_by { |d| d[:Mean] }[:Mean].to_f
+        state.dataset_max_x = state.dataset_used.max_by { |d| d[:Year] }[:Year].to_f
+        state.dataset_min_x = state.dataset_used.min_by { |d| d[:Year] }[:Year].to_f
     end
     
     def render
         # Titles
         outputs.labels << [640, grid.h - 20, "Annual mean temperature anomalies in degrees Celsius relative to a base period", 0, 1]
         outputs.labels << [640, 40, "Year", 0, 1]
-        outputs.labels << [game.chart_grid.x - 40, grid.h_half - 0, "Mean", 0, 1]
+        outputs.labels << [state.chart_grid.x - 40, grid.h_half - 0, "Mean", 0, 1]
         outputs.labels << [grid.right - 360, grid.bottom + 20, "Source: https://datahub.io/core/global-temp", -2, 0]
 
         # Chart box
-        outputs.borders << [game.chart_grid.x, game.chart_grid.y, game.chart_grid.width, game.chart_grid.height, 128, 128, 128]
+        outputs.borders << [state.chart_grid.x, state.chart_grid.y, state.chart_grid.width, state.chart_grid.height, 128, 128, 128]
 
         # Y axis gridlines
         outputs.lines << [calc_scaled_x(1880), calc_scaled_y(0.5), calc_scaled_x(2016), calc_scaled_y(0.5), 211, 211, 211]
         outputs.lines << [calc_scaled_x(1880), calc_scaled_y(0), calc_scaled_x(2016), calc_scaled_y(0), 255]
 
         # X axis gridlines
-        outputs.lines << [calc_scaled_x(1900), calc_scaled_y(game.dataset_min_y), calc_scaled_x(1900), calc_scaled_y(game.dataset_max_y), 211, 211, 211]
-        outputs.lines << [calc_scaled_x(1920), calc_scaled_y(game.dataset_min_y), calc_scaled_x(1920), calc_scaled_y(game.dataset_max_y), 211, 211, 211]
-        outputs.lines << [calc_scaled_x(1940), calc_scaled_y(game.dataset_min_y), calc_scaled_x(1940), calc_scaled_y(game.dataset_max_y), 211, 211, 211]
-        outputs.lines << [calc_scaled_x(1960), calc_scaled_y(game.dataset_min_y), calc_scaled_x(1960), calc_scaled_y(game.dataset_max_y), 211, 211, 211]
-        outputs.lines << [calc_scaled_x(1980), calc_scaled_y(game.dataset_min_y), calc_scaled_x(1980), calc_scaled_y(game.dataset_max_y), 211, 211, 211]
-        outputs.lines << [calc_scaled_x(2000), calc_scaled_y(game.dataset_min_y), calc_scaled_x(2000), calc_scaled_y(game.dataset_max_y), 211, 211, 211]
+        outputs.lines << [calc_scaled_x(1900), calc_scaled_y(state.dataset_min_y), calc_scaled_x(1900), calc_scaled_y(state.dataset_max_y), 211, 211, 211]
+        outputs.lines << [calc_scaled_x(1920), calc_scaled_y(state.dataset_min_y), calc_scaled_x(1920), calc_scaled_y(state.dataset_max_y), 211, 211, 211]
+        outputs.lines << [calc_scaled_x(1940), calc_scaled_y(state.dataset_min_y), calc_scaled_x(1940), calc_scaled_y(state.dataset_max_y), 211, 211, 211]
+        outputs.lines << [calc_scaled_x(1960), calc_scaled_y(state.dataset_min_y), calc_scaled_x(1960), calc_scaled_y(state.dataset_max_y), 211, 211, 211]
+        outputs.lines << [calc_scaled_x(1980), calc_scaled_y(state.dataset_min_y), calc_scaled_x(1980), calc_scaled_y(state.dataset_max_y), 211, 211, 211]
+        outputs.lines << [calc_scaled_x(2000), calc_scaled_y(state.dataset_min_y), calc_scaled_x(2000), calc_scaled_y(state.dataset_max_y), 211, 211, 211]
         
         # Y axis labels
-        outputs.labels << [game.chart_grid.x, calc_scaled_y(game.dataset_max_y) + 7, "#{game.dataset_max_y}", -3, 2]
-        outputs.labels << [game.chart_grid.x, calc_scaled_y(0.5) + 7, "0.5", -3, 2]
-        outputs.labels << [game.chart_grid.x, calc_scaled_y(0.0) + 7, "0", -3, 2]
-        outputs.labels << [game.chart_grid.x, calc_scaled_y(game.dataset_min_y) + 7, "#{game.dataset_min_y}", -3, 2]
+        outputs.labels << [state.chart_grid.x, calc_scaled_y(state.dataset_max_y) + 7, "#{state.dataset_max_y}", -3, 2]
+        outputs.labels << [state.chart_grid.x, calc_scaled_y(0.5) + 7, "0.5", -3, 2]
+        outputs.labels << [state.chart_grid.x, calc_scaled_y(0.0) + 7, "0", -3, 2]
+        outputs.labels << [state.chart_grid.x, calc_scaled_y(state.dataset_min_y) + 7, "#{state.dataset_min_y}", -3, 2]
 
         # X axis labels
-        outputs.labels << [calc_scaled_x(1880), game.chart_grid.y - 10, "1880", -3, 1]
-        outputs.labels << [calc_scaled_x(1900), game.chart_grid.y - 10, "1900", -3, 1]
-        outputs.labels << [calc_scaled_x(1920), game.chart_grid.y - 10, "1920", -3, 1]
-        outputs.labels << [calc_scaled_x(1940), game.chart_grid.y - 10, "1940", -3, 1]
-        outputs.labels << [calc_scaled_x(1960), game.chart_grid.y - 10, "1960", -3, 1]
-        outputs.labels << [calc_scaled_x(1980), game.chart_grid.y - 10, "1980", -3, 1]
-        outputs.labels << [calc_scaled_x(2000), game.chart_grid.y - 10, "2000", -3, 1]
-        outputs.labels << [calc_scaled_x(2016), game.chart_grid.y - 10, "2016", -3, 1]
+        outputs.labels << [calc_scaled_x(1880), state.chart_grid.y - 10, "1880", -3, 1]
+        outputs.labels << [calc_scaled_x(1900), state.chart_grid.y - 10, "1900", -3, 1]
+        outputs.labels << [calc_scaled_x(1920), state.chart_grid.y - 10, "1920", -3, 1]
+        outputs.labels << [calc_scaled_x(1940), state.chart_grid.y - 10, "1940", -3, 1]
+        outputs.labels << [calc_scaled_x(1960), state.chart_grid.y - 10, "1960", -3, 1]
+        outputs.labels << [calc_scaled_x(1980), state.chart_grid.y - 10, "1980", -3, 1]
+        outputs.labels << [calc_scaled_x(2000), state.chart_grid.y - 10, "2000", -3, 1]
+        outputs.labels << [calc_scaled_x(2016), state.chart_grid.y - 10, "2016", -3, 1]
 
         # Plot the data
-        game.dataset_used.each_with_index do |d, idx|
-            if (idx + 1) >= game.dataset_used.length
+        state.dataset_used.each_with_index do |d, idx|
+            if (idx + 1) >= state.dataset_used.length
                 break
             end
 
             y = calc_scaled_y(d[:Mean])
             x = calc_scaled_x(d[:Year])
 
-            next_data = game.dataset_used[idx + 1]
+            next_data = state.dataset_used[idx + 1]
 
             next_data_y = calc_scaled_y(next_data[:Mean])
             next_data_x = calc_scaled_x(next_data[:Year])
@@ -78,18 +78,18 @@ class Chart
     end
     
     def calc_scaled_y(data_value)
-        height = game.chart_grid.height + game.chart_grid.y
-        val = game.chart_grid.y + (data_value - game.dataset_min_y) * (height - game.chart_grid.y) / (game.dataset_max_y - game.dataset_min_y)
+        height = state.chart_grid.height + state.chart_grid.y
+        val = state.chart_grid.y + (data_value - state.dataset_min_y) * (height - state.chart_grid.y) / (state.dataset_max_y - state.dataset_min_y)
     end
 
     def calc_scaled_x(data_value)
-        width = game.chart_grid.width + game.chart_grid.x  
-        game.chart_grid.x + (data_value - game.dataset_min_x) * (width - game.chart_grid.x) / (game.dataset_max_x - game.dataset_min_x)
+        width = state.chart_grid.width + state.chart_grid.x
+        state.chart_grid.x + (data_value - state.dataset_min_x) * (width - state.chart_grid.x) / (state.dataset_max_x - state.dataset_min_x)
     end
      
     
     def defaults_data 
-        game.dataset = [{
+        state.dataset = [{
             "Mean": 0.9363,
             "Source": "GCAG",
             "Year": 2016
@@ -1194,7 +1194,7 @@ $chart = Chart.new
 
 def tick args
     $chart.inputs  = args.inputs
-    $chart.game    = args.game
+    $chart.state    = args.state
     $chart.outputs = args.outputs
     $chart.grid    = args.grid
     $chart.tick
